@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flag Quiz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="flag">Loading...</h1>
+    <input type="text" id="answer" placeholder="Country name" />
+    <button onclick="submitAnswer()">Submit</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    let correctName = "";
+
+    async function loadFlag() {
+      const res = await fetch("/api/index");
+      const data = await res.json();
+      document.getElementById("flag").textContent = data.question.flag;
+      correctName = data.question.name;
+    }
+
+    async function submitAnswer() {
+      const answer = document.getElementById("answer").value;
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer, correctName })
+      });
+      const data = await res.json();
+      document.getElementById("result").textContent = data.wasCorrect ? "✔ Correct!" : "✖ Wrong!";
+      loadFlag(); // Load next flag
+    }
+
+    loadFlag();
+  </script>
+</body>
+</html>
